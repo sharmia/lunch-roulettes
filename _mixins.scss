@@ -1,0 +1,133 @@
+@import './_variables.scss';
+
+@mixin plain-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+}
+
+@mixin plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@mixin page-root {
+  @include page-root-layer;
+  background: $white-color;
+  padding-bottom: 2em;
+  padding-top: 1em;
+}
+
+@mixin page-root-layer {
+  z-index: 1; /* set page z-index below hamburger menu overlay */
+  position: relative;
+}
+
+@mixin autosuggest-container {
+  display: inline-block;
+  position: relative;
+
+  input {
+    display: inline;
+    vertical-align: middle;
+  }
+}
+
+@mixin autosuggest-suggestions-container {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+
+  ul {
+    @include plain-list;
+    background: $white-color;
+    border: 1px solid $black-color;
+  }
+}
+
+@mixin autosuggest-suggestion {
+  cursor: pointer;
+  padding: 0 .25em;
+}
+
+@mixin autosuggest-suggestion-focused {
+  background: pink;
+}
+
+@mixin filter-form-root {
+  display: inline-block;
+  margin-bottom: 10px;
+  margin-right: 1em;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  button {
+    border: $default-border;
+    border-radius: $button-border-radius;
+  }
+}
+
+@mixin filter-form-form {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@mixin info-window {
+  bottom: 100%;
+  position: absolute;
+  text-align: left;
+  transform: translateX(-50%);
+
+  &::before,
+  &::after {
+    border-style: solid;
+    content: '';
+    left: 50%;
+    margin-top: -13px;
+    position: absolute;
+    top: 100%;
+    height: 0;
+    width: 0;
+  }
+
+  &::before {
+    border-width: 44px 8px 0;
+    border-color: $black-color transparent transparent;
+    margin-left: -8px;
+  }
+
+  &::after {
+    border-width: 32px 5px 0;
+    border-color: $white-color transparent transparent;
+    margin-left: -5px;
+  }
+}
+
+@mixin text-on-texture {
+  color: $white-color;
+  text-shadow: 0 0 5px $black-color, 0 0 10px $black-color, 0 0 20px $black-color;
+}
+
+@mixin shadow-focus {
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, .5));
+}
+
+@mixin image-replace {
+  text-indent: 102%;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0;
+}
+
+@mixin clearfix {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}

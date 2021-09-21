@@ -1,30 +1,9 @@
-import ActionTypes from '../constants/ActionTypes';
-import { processResponse, credentials, jsonHeaders } from '../core/ApiClient';
+import { createSelector } from 'reselect';
 
-export function postTeam(obj) {
-  return {
-    type: ActionTypes.POST_TEAM,
-    team: obj
-  };
-}
+export const getTeamIds = state => state.teams.items.result;
+export const getTeamEntities = state => state.teams.items.entities.teams;
 
-export function teamPosted(obj) {
-  return {
-    type: ActionTypes.TEAM_POSTED,
-    team: obj
-  };
-}
-
-export function createTeam(payload) {
-  return (dispatch) => {
-    dispatch(postTeam(payload));
-    return fetch('/api/teams', {
-      method: 'post',
-      credentials,
-      headers: jsonHeaders,
-      body: JSON.stringify(payload)
-    })
-      .then(response => processResponse(response, dispatch))
-      .then(obj => dispatch(teamPosted(obj)));
-  };
-}
+export const getTeams = createSelector(
+  getTeamIds, getTeamEntities,
+  (teamIds, teamEntities) => teamIds.map(id => teamEntities[id])
+);

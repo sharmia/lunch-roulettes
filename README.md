@@ -1,67 +1,54 @@
-# Redux Actions and Action Creators
+# Build Automation Tools
 
-### Action Types
+### `yarn start` (`start.js`)
 
-Should go to `src/constants/…`
+* Cleans up the output `/build` directory (`clean.js`)
+* Copies static files to the output folder (`copy.js`)
+* Launches [Webpack](https://webpack.github.io/) compiler in a watch mode (via
+  [webpack-middleware](https://github.com/kriasoft/webpack-middleware))
+* Launches Node.js server from the compiled output folder (`runServer.js`)
+* Launches [Browsersync](https://browsersync.io/) and
+  [Hot Module Replacement](https://webpack.github.io/docs/hot-module-replacement)
 
-```js
-export const ADD_TODO = 'ADD_TODO';
+### `yarn run build` (`build.js`)
+
+* Cleans up the output `/build` folder (`clean.js`)
+* Copies static files to the output folder (`copy.js`)
+* Creates application bundles with Webpack (`bundle.js`, `webpack.config.js`)
+
+### `yarn run deploy` (`deploy.js`)
+
+* Builds the project from source files (`build.js`)
+* Pushes the contents of the `/build` folder to a remote server with Git
+
+## Options
+
+| Flag        | Description                                                                         |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `--release` | Minimizes and optimizes the compiled output                                         |
+| `--verbose` | Prints detailed information to the console                                          |
+| `--analyze` | Launches [Webpack Bundle Analyzer](https://github.com/th0r/webpack-bundle-analyzer) |
+| `--static`  | Renders [specified routes](./render.js#L15) as static html files                    |
+| `--docker`  | Build an image from a Dockerfile                                                    |
+| `--silent`  | Do not open the default browser                                                     |
+
+For example:
+
+```sh
+$ yarn run build --release --verbose      # Build the app in production mode
 ```
 
-### Action Creators
+or
 
-Should go to `src/actions/…`
-
-```js
-export function addTodo({ text }) {
-  return {
-    type: ADD_TODO,
-    payload: {
-      text,
-      // ...
-    },
-  };
-}
+```sh
+$ yarn start --release                    # Launch dev server in production mode
 ```
 
-## Flux Standard Action
+## Misc
 
-An action _MUST_
-
-* be a plain JavaScript object.
-* have a `type` property. (_string_)
-
-An action _MAY_
-
-* have an `error` property. (`true` → `payload` _should be instance of `Error`_)
-  If `error` has any other value besides `true`, the action _MUST NOT_ be interpreted as an error.
-* have a `payload` property. (_any, object is reccomended_)
-* have a `meta` property. (_any_)
-  It is intended for any extra information that is not part of the payload
-
-An action _MUST NOT_ include properties other than `type`, `payload`, `error`, and `meta`.
-
-[**Read more about FSA**](https://github.com/redux-utilities/flux-standard-action#flux-standard-action)
-
-### Examples
-
-```js
-// Action example:
-{
-  type: ADD_TODO,
-  payload: {
-    text: 'Contribute to React Starter Kit.',
-  },
-}
-// Error action example:
-{
-  type: 'ADD_TODO',
-  error: true,
-  payload: new Error('Database Error'),
-}
-```
-
-# Other Resources
-
-* [Actions on redux.js.org](https://redux.js.org/basics/actions)
-* [Flux Standard Action](https://github.com/redux-utilities/flux-standard-action#flux-standard-action)
+* `webpack.config.js` - Webpack configuration for both client-side and
+  server-side bundles
+* `postcss.config.js` - PostCSS configuration for transforming styles with JS
+  plugins
+* `run.js` - Helps to launch other scripts with `babel-node` (e.g. `babel-node tools/run build`)
+* `.eslintrc` - ESLint overrides for built automation scripts

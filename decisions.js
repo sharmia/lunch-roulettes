@@ -1,101 +1,55 @@
-import ActionTypes from '../constants/ActionTypes';
-import { processResponse, credentials, jsonHeaders } from '../core/ApiClient';
+import { createSelector } from 'reselect';
+import moment from 'moment';
 
-export function invalidateDecisions() {
-  return { type: ActionTypes.INVALIDATE_DECISIONS };
-}
+export const getDecisionIds = state => state.decisions.items.result;
+export const getDecisionEntities = state => state.decisions.items.entities.decisions;
 
-export function requestDecisions() {
-  return {
-    type: ActionTypes.REQUEST_DECISIONS
-  };
-}
-
-export function receiveDecisions(json) {
-  return {
-    type: ActionTypes.RECEIVE_DECISIONS,
-    items: json
-  };
-}
-
-export function fetchDecisions() {
-  return dispatch => {
-    dispatch(requestDecisions());
-    return fetch('/api/decisions/', {
-      credentials,
-      headers: jsonHeaders
-    })
-      .then(response => processResponse(response, dispatch))
-      .then(json => dispatch(receiveDecisions(json)));
-  };
-}
-
-function shouldFetchDecisions(state) {
-  const { decisions } = state;
-  if (decisions.isFetching) {
-    return false;
-  }
-  return decisions.didInvalidate;
-}
-
-export function fetchDecisionsIfNeeded() {
-  // Note that the function also receives getState()
-  // which lets you choose what to dispatch next.
-
-  // This is useful for avoiding a network request if
-  // a cached value is already available.
-
-  return (dispatch, getState) => {
-    if (shouldFetchDecisions(getState())) {
-      // Dispatch a thunk from thunk!
-      return dispatch(fetchDecisions());
+export const getDecisionsByDay = createSelector(
+  [getDecisionIds, getDecisionEntities],
+  (decisionIds, decisionEntities) => decisionIds.reduce((acc, curr) => {
+    const decision = decisionEntities[curr];
+    const createdAt = moment(decision.created_at);
+    const comparisonDate = moment().subtract(12, 'hours');
+    for (let i = 0; i < 5; i += 1) {
+      if (createdAt.isAfter(comparisonDate)) {
+        acc[i].push(decision);
+        break;
+      }
+      comparisonDate.subtract(24, 'hours');
     }
+    return acc;
+  }, {
+    0: [],
+    1: [],
+    2: [],
+    3: [],
+    4: [],
+  }),
+);
 
-    // Let the calling code know there's nothing to wait for.
-    return Promise.resolve();
-  };
-}
+export const getDecisionsByRestaurantId = createSelector(
+  getDecisionIds, getDecisionEntities,
+  (decisionIds, decisionEntities) => decisionIds.reduce((acc, curr) => {
+    const decision = decisionEntities[curr];
+    acc[decision.restaurant_id] = new Date(decision.created_at).toLocaleDateString();
+    return acc;
+  }, {}),
+);
 
-export const postDecision = (restaurantId) => ({
-  type: ActionTypes.POST_DECISION,
-  restaurantId
-});
+export const areDecisionsLoading = state => state.decisions.didInvalidate;
 
-export const decisionPosted = (decision, deselected, userId) => ({
-  type: ActionTypes.DECISION_POSTED,
-  decision,
-  deselected,
-  userId
-});
-
-export const deleteDecision = () => ({
-  type: ActionTypes.DELETE_DECISION,
-});
-
-export const decisionsDeleted = (decisions, userId) => ({
-  type: ActionTypes.DECISIONS_DELETED,
-  decisions,
-  userId
-});
-
-export const decide = (restaurantId, daysAgo) => dispatch => {
-  const payload = { daysAgo, restaurant_id: restaurantId };
-  dispatch(postDecision(restaurantId));
-  return fetch('/api/decisions', {
-    credentials,
-    headers: jsonHeaders,
-    method: 'post',
-    body: JSON.stringify(payload)
-  })
-    .then(response => processResponse(response, dispatch));
-};
-
-export const removeDecision = () => (dispatch) => {
-  dispatch(deleteDecision());
-  return fetch('/api/decisions/fromToday', {
-    credentials,
-    headers: jsonHeaders,
-    method: 'delete',
-  })
-    .then(response => processResponse(response, dispatch));
-};
+export const getDecision = createSelector(
+  getDecisionIds, getDecisionEntities,
+  (decisionIds, decisionEntities) => {
+    if (decisionIds.length === 0) {
+      return undefined;
+    }
+    const twelveHoursAgo = moment().subtract(12, 'hours');
+    for (let i = 0; i < decisionIds.length; i += 1) {
+      if (moment(decisionEntities[decisionIds[i]].created_at).isAfter(twelveHoursAgo)) {
+        return decisionEntities[decisionIds[i]];
+      }
+    }
+    return undefined;
+  }
+);

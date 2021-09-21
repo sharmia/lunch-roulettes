@@ -1,33 +1,7 @@
-import ActionTypes from '../constants/ActionTypes';
+const blankUi = {};
 
-export function setEditNameFormValue(id, value) {
-  return {
-    type: ActionTypes.SET_EDIT_NAME_FORM_VALUE,
-    id,
-    value
-  };
-}
+export const getListUi = state => state.listUi;
+export const getListUiItemForId = (state, props) => getListUi(state)[typeof props === 'object' ? props.restaurantId : props] || blankUi;
+export const getNewlyAdded = state => state.listUi.newlyAdded;
 
-export function showEditNameForm(id) {
-  return {
-    type: ActionTypes.SHOW_EDIT_NAME_FORM,
-    id
-  };
-}
-
-export function hideEditNameForm(id) {
-  return dispatch => {
-    dispatch(setEditNameFormValue(id, ''));
-    dispatch({
-      type: ActionTypes.HIDE_EDIT_NAME_FORM,
-      id
-    });
-  };
-}
-
-export function setFlipMove(val) {
-  return {
-    type: ActionTypes.SET_FLIP_MOVE,
-    val,
-  };
-}
+export const getFlipMove = state => state.listUi.flipMove;
