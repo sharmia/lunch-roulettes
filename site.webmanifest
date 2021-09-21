@@ -1,0 +1,16 @@
+{
+  "short_name": "Lunch",
+  "name": "Lunch",
+  "description": "A simple lunch voting app for you and your team. Search nearby restaurants, add them to your list, vote for as many as you like, and decide on today’s pick!",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "browser",
+  "theme_color": "#FFC0CB",
+  "background_color": "#FFF"
+}
